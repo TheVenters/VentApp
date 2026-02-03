@@ -1,0 +1,315 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>Map Test</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <div id="map"></div>
+    
+    <!-- Pin Input Modal -->
+    <div class="pin-modal-overlay" id="pinModalOverlay">
+      <div class="pin-modal">
+        <div class="pin-modal-header">
+          <div class="pin-modal-title">
+            <span id="pinModalIcon">📝</span>
+            <span id="pinModalTitleText">Add Text</span>
+          </div>
+          <button class="pin-modal-close" id="pinModalClose">×</button>
+        </div>
+        <div class="pin-modal-body">
+          <!-- Media type toggle (hidden for text-only posts) -->
+          <div class="media-type-toggle" id="mediaTypeToggle" style="display: none;">
+            <button type="button" class="media-type-btn photo active" id="mediaTypePhoto">📷 Photo</button>
+            <button type="button" class="media-type-btn video" id="mediaTypeVideo">🎬 Video</button>
+          </div>
+          
+          <!-- Media URL field (hidden for text-only posts) -->
+          <div class="pin-modal-field-group" id="mediaUrlGroup" style="display: none;">
+            <label class="pin-modal-label" id="mediaUrlLabel">Photo URL</label>
+            <input type="url" class="pin-modal-input" id="pinModalMediaUrl" placeholder="Paste image URL here...">
+          </div>
+          
+          <!-- Text/Caption field -->
+          <div class="pin-modal-field-group">
+            <label class="pin-modal-label" id="textFieldLabel" style="display: none;">Your text</label>
+            <textarea class="pin-modal-input" id="pinModalInput" rows="3" placeholder="Enter your text..."></textarea>
+          </div>
+          
+          <div class="pin-modal-hint" id="pinModalHint">Share your thoughts with the community</div>
+        </div>
+        <div class="pin-modal-actions">
+          <button class="pin-modal-btn cancel" id="pinModalCancel">Cancel</button>
+          <button class="pin-modal-btn submit" id="pinModalSubmit">Post</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="compass-container">
+      <button class="compass-button" id="compassButton" title="Reset to North">
+        <div class="compass-needle">
+          <span class="compass-label north">N</span>
+          <span class="compass-label south">S</span>
+        </div>
+      </button>
+    </div>
+    
+    <div class="search-container">
+      <div class="search-mode-dropdown" id="searchModeDropdown">
+        <div class="search-mode-option active" data-mode="community">
+          <span class="search-mode-option-icon">👥</span>
+          <span>Search Community</span>
+        </div>
+        <div class="search-mode-option" data-mode="location">
+          <span class="search-mode-option-icon">📍</span>
+          <span>Search Location</span>
+        </div>
+      </div>
+      <div class="search-wrapper">
+        <button class="search-mode-toggle" id="searchModeToggle" title="Switch search mode">
+          <span class="search-mode-icon" id="searchModeIcon">👥</span>
+          <span class="search-mode-arrow">▲</span>
+        </button>
+        <input type="text" class="search-bar" id="mainSearchBar" placeholder="Search Community...">
+      </div>
+    </div>
+    
+    <div class="hamburger-overlay" id="hamburgerOverlay"></div>
+    
+    <div class="hamburger-container">
+      <button class="hamburger-button" id="hamburgerButton">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="notification-badge hidden" id="hamburgerBadge">0</span>
+      </button>
+      
+      <div class="hamburger-menu" id="hamburgerMenu">
+        <div class="hamburger-menu-item" data-action="account">
+          <span class="hamburger-menu-icon">👤</span>
+          <span>Account</span>
+        </div>
+        <div class="hamburger-menu-item" data-action="friends">
+          <span class="hamburger-menu-icon">🤝</span>
+          <span>Friends</span>
+          <span class="notification-badge hidden" id="friendsBadge">0</span>
+        </div>
+        <div class="hamburger-menu-item" data-action="communities">
+          <span class="hamburger-menu-icon">👥</span>
+          <span>Communities</span>
+        </div>
+        <div class="hamburger-menu-item" data-action="views">
+          <span class="hamburger-menu-icon">👁️</span>
+          <span>Views</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="fab-overlay" id="fabOverlay"></div>
+    
+    <div class="views-overlay" id="viewsOverlay"></div>
+    
+    <div class="views-submenu" id="viewsSubmenu">
+      <button class="views-close-btn" id="viewsCloseBtn">×</button>
+      <div class="views-submenu-title">Map Views</div>
+      <div class="views-grid">
+        <div class="view-option active" data-view="standard">
+          <span class="view-option-icon">🗺️</span>
+          <span class="view-option-label">Standard</span>
+        </div>
+        <div class="view-option" data-view="satellite">
+          <span class="view-option-icon">🛰️</span>
+          <span class="view-option-label">Satellite</span>
+        </div>
+        <div class="view-option" data-view="bike">
+          <span class="view-option-icon">🚴</span>
+          <span class="view-option-label">Bike Map</span>
+        </div>
+        <div class="view-option" data-view="terrain">
+          <span class="view-option-icon">⛰️</span>
+          <span class="view-option-label">Terrain</span>
+        </div>
+        <div class="view-option" data-view="dark">
+          <span class="view-option-icon">🌙</span>
+          <span class="view-option-label">Dark Mode</span>
+        </div>
+        <div class="view-option" data-view="transit">
+          <span class="view-option-icon">🚇</span>
+          <span class="view-option-label">Transit</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="fab-container">
+      <div class="fab-menu" id="fabMenu">
+        <div class="fab-menu-title">Create Post</div>
+        
+        <div class="fab-option" data-type="text">
+          <div class="fab-option-icon text">✏️</div>
+          <span class="fab-option-label">Text</span>
+        </div>
+        
+        <div class="fab-option" data-type="media">
+          <div class="fab-option-icon media">📸</div>
+          <span class="fab-option-label">Media</span>
+        </div>
+        
+        <div class="layer-selector">
+          <div class="layer-selector-label">Select Layer</div>
+          <select class="layer-select" id="layerSelect">
+            <option value="public">Public</option>
+            <option value="friends">Friends</option>
+            <option value="private">Private</option>
+            <option value="events">Events</option>
+          </select>
+        </div>
+      </div>
+      
+      <button class="fab-button" id="fabButton">+</button>
+    </div>
+    
+    <div class="account-overlay" id="accountOverlay">
+      <button class="account-close-btn" id="accountCloseBtn">×</button>
+      <div class="account-page">
+        <div class="account-logo">
+          <div class="account-logo-text">Vent</div>
+          <div class="account-tagline">Share your world</div>
+        </div>
+        
+        <form class="account-form" id="accountForm">
+          <div class="account-input-group">
+            <input type="email" class="account-input" id="accountEmail" placeholder="Email" required>
+          </div>
+          <div class="account-input-group">
+            <input type="password" class="account-input" id="accountPassword" placeholder="Password" required>
+          </div>
+          <div id="accountMessage" style="text-align: center; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; min-height: 20px;"></div>
+          <button type="submit" class="account-submit" id="accountSubmitBtn">Sign In</button>
+        </form>
+        
+        <div id="accountLoggedIn" style="display: none; text-align: center;">
+          <div id="accountUserName" style="font-size: 24px; font-weight: 700; color: #333; margin-bottom: 4px;"></div>
+          <div id="accountUsername" style="font-size: 16px; color: #667eea; margin-bottom: 8px;"></div>
+          <div id="accountUserEmail" style="font-size: 14px; color: #888; margin-bottom: 20px;"></div>
+          <button type="button" id="accountLogoutBtn" class="account-submit" style="background: #dc3545;">Sign Out</button>
+        </div>
+        
+        <div class="account-divider">or continue with</div>
+        
+        <div class="account-social">
+          <button type="button" class="account-social-btn" title="Google">🌐</button>
+          <button type="button" class="account-social-btn" title="Apple">🍎</button>
+          <button type="button" class="account-social-btn" title="Facebook">📱</button>
+        </div>
+        
+        <div class="account-footer">
+          Don't have an account? <a href="#">Sign Up</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Friends Page -->
+    <div class="friends-overlay" id="friendsOverlay">
+      <div class="friends-header">
+        <div class="friends-title">🤝 Friends</div>
+        <button class="friends-close-btn" id="friendsCloseBtn">×</button>
+      </div>
+      <div class="friends-content">
+        <!-- Login prompt (shown when not logged in) -->
+        <div class="friends-login-prompt" id="friendsLoginPrompt">
+          <div class="friends-empty-icon">🔒</div>
+          <div style="font-size: 18px; font-weight: 600; color: #333; margin-bottom: 8px;">Sign in to connect</div>
+          <div style="color: #888; margin-bottom: 16px;">You need to be signed in to add friends</div>
+          <button class="friends-login-btn" id="friendsLoginBtn">Sign In</button>
+        </div>
+        
+        <!-- Friends content (shown when logged in) -->
+        <div id="friendsLoggedInContent" style="display: none;">
+          <!-- Search -->
+          <div class="friends-search">
+            <input type="text" class="friends-search-input" id="friendsSearchInput" placeholder="Search by username...">
+            <button class="friends-search-btn" id="friendsSearchBtn">🔍</button>
+          </div>
+          
+          <!-- Search Results -->
+          <div id="friendsSearchResults" style="display: none; margin-bottom: 20px;">
+            <div style="font-size: 14px; font-weight: 600; color: #888; margin-bottom: 12px;">Search Results</div>
+            <div id="friendsSearchResultsList"></div>
+          </div>
+          
+          <!-- Tabs -->
+          <div class="friends-tabs">
+            <button class="friends-tab active" data-tab="friends">Friends</button>
+            <button class="friends-tab" data-tab="requests" id="requestsTab">
+              Requests
+              <span class="friends-tab-badge" id="requestsBadge" style="display: none;">0</span>
+            </button>
+            <button class="friends-tab" data-tab="sent">Sent</button>
+          </div>
+          
+          <!-- Friends List -->
+          <div class="friends-section active" id="friendsListSection">
+            <div id="friendsList"></div>
+            <div class="friends-empty" id="friendsEmptyState">
+              <div class="friends-empty-icon">👫</div>
+              <div>No friends yet</div>
+              <div style="font-size: 13px; margin-top: 4px;">Search for users to add them</div>
+            </div>
+          </div>
+          
+          <!-- Requests List -->
+          <div class="friends-section" id="requestsListSection">
+            <div id="requestsList"></div>
+            <div class="friends-empty" id="requestsEmptyState">
+              <div class="friends-empty-icon">📬</div>
+              <div>No pending requests</div>
+            </div>
+          </div>
+          
+          <!-- Sent Requests List -->
+          <div class="friends-section" id="sentListSection">
+            <div id="sentList"></div>
+            <div class="friends-empty" id="sentEmptyState">
+              <div class="friends-empty-icon">📤</div>
+              <div>No sent requests</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Modal -->
+    <div class="chat-overlay" id="chatOverlay">
+      <div class="chat-modal">
+        <div class="chat-header">
+          <button class="chat-back-btn" id="chatBackBtn">←</button>
+          <div class="chat-user-info">
+            <div class="chat-user-name" id="chatUserName">Friend Name</div>
+            <div class="chat-user-status" id="chatUserStatus">@username</div>
+          </div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+          <div class="chat-empty" id="chatEmpty">
+            <div class="chat-empty-icon">💬</div>
+            <div>No messages yet</div>
+            <div style="font-size: 13px; margin-top: 4px;">Say hello!</div>
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <input type="text" class="chat-input" id="chatInput" placeholder="Type a message...">
+          <button class="chat-send-btn" id="chatSendBtn">➤</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="main.js"></script>
+  </body>
+</html>
