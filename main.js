@@ -516,6 +516,7 @@ async function deletePin(pinId) {
   }
 }
 
+
 // Make functions global for popup buttons
 window.editPin = editPin;
 window.deletePin = deletePin;
