@@ -1666,3 +1666,5 @@ compassButton.addEventListener('click', () => {
   map.setBearing && map.setBearing(0);
   console.log('Compass: Resetting to North');
 });
+
+
